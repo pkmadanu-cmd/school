@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Management</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      margin: 0;
+      background: #f4f4f4;
+    }
+
+    .header {
+      background: #4a6fa5;
+      color: white;
+      text-align: center;
+      padding: 15px;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: #3b5d8a;
+      color: white;
+      height: 100vh;
+      padding: 15px;
+    }
+
+    .sidebar button {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      background: #5f84b3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* FORM */
+    .form-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      padding: 10px;
+      margin-top: 10px;
+      width: 100%;
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* TABLE ONLY FOR MAIN LIST */
+    .table-container {
+      max-width: 800px;
+      margin: 20px auto;
+    }
+
+    .teacher-header,
+    .teacher-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr auto;
+      font-size: 13px;
+    }
+
+    .teacher-header {
+      background: #4a6fa5;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 6px 6px 0 0;
+    }
+
+    .teacher-row {
+      background: white;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 5px;
+    }
+
+    .edit-btn {
+      background: orange;
+      color: white;
+      border: none;
+      padding: 5px;
+      font-size: 11px;
+      border-radius: 4px;
+    }
+
+    .delete-btn {
+      background: red;
+      color: white;
+      border: none;
+      padding: 5px;
+      font-size: 11px;
+      border-radius: 4px;
+    }
+
+    /* DETAILS CLEAN VIEW (NO TABLE) */
+    #teacherDetails .detail-box {
+      background: white;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      font-size: 14px;
+    }
+
+    #teacherDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* space between boxes */
+}
+
+#suggestions {
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+}
+
+.suggestion-item {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.suggestion-item:hover {
+  background: #f2f2f2;
+}
+
+.inv-card {
+  background: white;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  font-size: 14px;
+}
+
+.header {
+  background: linear-gradient(90deg, #4a6fa5, #2f4f7f);
+  color: white;
+  text-align: center;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: 0.5px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  background: #5f84b3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+/* Hover effect */
+.sidebar button:hover {
+  background: #7aa3d1;
+  transform: translateX(6px);   /* lift to right */
+  box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Click effect */
+.sidebar button:active {
+  transform: translateX(3px) scale(0.98);
+}
+
+/* Optional active glow */
+.sidebar button:hover::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 4px;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 4px 0 0 4px;
+}
+  </style>
+</head>
+
+<body>
+
+<div class="header">
+  <h2>St. Ann's High School</h2>
+  <p>ICSE School Teacher Invigilation Management System</p>
+</div>
+
+<div class="container">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <button onclick="showAdd()">Add Teacher</button>
+    <button onclick="showDetails()">Teacher Details</button>
+    <button onclick="showInvigilation()">Create Invigilation</button>    
+    <button onclick="showDutyPage()">Created Invigilation Duty</button>
+    <button onclick="showPrintPage()">Invigilation Day Print</button>  
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ADD PAGE -->
+    <div id="addPage">
+
+      <div class="form-box">
+
+        <h3>Add Teacher</h3>
+
+        <div class="form-grid">
+          <input id="name" placeholder="Teacher Name">
+          <input id="subject" placeholder="Subject">
+          <input id="classSection" placeholder="Class & Section">
+
+          <select id="classTeacher">
+            <option value="">Is Class Teacher?</option>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <button onclick="addTeacher()">Add Teacher</button>
+
+      </div>
+
+      <!-- LIST ONLY HERE -->
+      <div class="table-container">
+
+        <div class="teacher-header">
+          <div>Name</div>
+          <div>Subject</div>
+          <div>Class</div>
+          <div>Class Teacher</div>
+          <div>Actions</div>
+        </div>
+
+        <div id="tableBody"></div>
+
+      </div>
+
+    </div>
+
+    <!-- DETAILS PAGE -->
+    <div id="detailsPage" style="display:none;">
+
+      <div class="form-box">
+
+        <h3>Teacher Details</h3>
+        <input type="text" id="teacherSearch" oninput="searchTeacher()" placeholder="Search teacher..." />
+        <div id="suggestions"></div>
+
+        <div id="teacherDetails"></div>
+
+      </div>
+
+    </div>
+
+    <!--Create invigilation-->
+    <!-- INVIGILATION PAGE -->
+<!-- INVIGILATION PAGE -->
+<div id="invigilationPage" style="display:none;">
+
+  <div class="form-box">
+
+    <h3>Create Invigilation Teacher</h3>
+
+    <div class="form-grid">
+
+      <!-- TEACHER SEARCH -->
+      <div>
+        <input type="text"
+               id="invTeacherSearch"
+               placeholder="Search Teacher..."
+               oninput="searchInvTeacher()">
+
+        <div id="invSuggestions"></div>
+
+        <!-- selected teacher -->
+        <input type="hidden" id="invTeacher">
+      </div>
+
+      <div style="grid-column: span 2;">
+      <label><b>Select Exam:</b></label><br>
+
+      <label>
+        <input type="checkbox" name="examOption" value="UNIT TEST 1"
+               onclick="selectExam(this)"> UNIT TEST 1
+      </label><br>
+
+      <label>
+        <input type="checkbox" name="examOption" value="QUARTERLY EXAMINATION"
+               onclick="selectExam(this)"> QUARTERLY EXAMINATION
+      </label><br>
+
+      <label>
+        <input type="checkbox" name="examOption" value="HALF YEARLY EXAMINATION"
+               onclick="selectExam(this)"> HALF YEARLY EXAMINATION
+      </label><br>
+
+      <label>
+        <input type="checkbox" name="examOption" value="ANNUAL EXAMINATION"
+               onclick="selectExam(this)"> ANNUAL EXAMINATION
+      </label>
+    </div>
+
+      <!-- hidden input (used internally) -->
+      <input type="hidden" id="examName">
+
+      <input id="invAllotted" placeholder="Invigilation Allotted" oninput="calculateRemaining()">
+      <input id="invAssigned" value="1" readonly placeholder="Assigned (Fixed = 1 Duty)">
+         
+      <input id="invRemaining" placeholder="Invigilation Remaining" readonly>
+
+    </div>
+
+    <h4 style="margin-top:15px;">Now Create Invigilation Room</h4>
+
+    <div class="form-grid">
+      <input type="date" id="invDate">
+      <input id="invClass" placeholder="Class & Section (Room)">
+    </div>
+
+    <label style="margin-top:10px; display:block;">
+      <input type="checkbox" id="confirmAssign">
+      Confirm Assignment
+    </label>
+
+    <button onclick="createInvigilation()">Create Invigilation</button>
+
+  </div>
+
+  <!-- ✅ INVIGILATION LIST ONLY HERE -->
+  <hr style="margin-top:20px;">
+
+  <h3>Created Invigilation List</h3> 
+
+ <input 
+  id="invSearchList" 
+  placeholder="Search Teacher Invigilation..." 
+  oninput="filterInvList()">
+
+  <div id="invList"></div>
+
+</div>
+<!--New Page of search duties-->
+<div id="dutyPage" style="display:none;">
+
+  <div class="form-box">
+
+    <h3>Created Invigilation Duty (Full History)</h3>
+
+    <input 
+      id="dutySearch" 
+      placeholder="Search Teacher..." 
+      oninput="searchDutyTeacher()">
+
+    <div id="dutySuggestions"></div> <!-- ✅ ADD THIS -->
+
+    <div id="dutyList"></div>
+
+  </div>
+
+</div>
+
+<!--print page-->
+<!-- INVIGILATION PRINT PAGE -->
+<div id="printPage" style="display:none;">
+
+  <div class="form-box">
+
+    <h3>Invigilation Duty List (Day Wise)</h3>
+
+    <input type="date" id="printDate" onchange="loadDayInvigilation()">
+
+    <button onclick="printPage()">Print</button>
+
+    <div id="printResult" style="margin-top:15px;"></div>
+
+  </div>
+
+</div>
+
+<!--inv details-->
+<!-- INVIGILATION CREATED REPORT PAGE -->
+<!-- INVIGILATION REPORT PAGE -->
+<div id="invReportPage" style="display:none;">
+
+  <div class="form-box">
+
+    <h3>Invigilation Report</h3>
+
+    <input type="text"
+           id="reportSearch"
+           placeholder="Search Teacher..."
+           oninput="filterInvReport()">
+
+    <div id="reportList"></div>
+
+  </div>
+
+</div>
+<!---->
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+
+<script>
+let allTeachers = [];
+let editId = null;
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCAN6kPnR6VWRV-f_6t8g4w1SkxNNHyl2c",
+  authDomain: "schoolapp-a9681.firebaseapp.com",
+  projectId: "schoolapp-a9681"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ---------------- ADD / UPDATE ---------------- */
+function addTeacher() {
+
+  const data = {
+    name: document.getElementById("name").value.trim(),
+    subject: document.getElementById("subject").value.trim(),
+    classSection: document.getElementById("classSection").value.trim(),
+    isClassTeacher: document.getElementById("classTeacher").value
+  };
+
+  if (!data.name) {
+    alert("Enter teacher name");
+    return;
+  }
+
+  if (editId) {
+    db.collection("teachers").doc(editId).update(data).then(() => {
+      alert("Updated Successfully");
+      editId = null;
+      clearForm();
+    });
+  } else {
+    db.collection("teachers").add(data).then(() => {
+      alert("Teacher Added Successfully");
+      clearForm();
+    });
+  }
+}
+
+/* ---------------- LOAD TEACHERS ---------------- */
+function loadTeachers() {
+
+  db.collection("teachers").onSnapshot(snapshot => {
+
+    allTeachers = [];
+    let html = "";
+
+    snapshot.forEach(doc => {
+      const t = doc.data();
+
+      allTeachers.push({ id: doc.id, ...t });
+
+      html += `
+        <div class="teacher-row">
+          <div><b>${t.name || ""}</b></div>
+          <div>${t.subject || ""}</div>
+          <div>${t.classSection || ""}</div>
+          <div>${t.isClassTeacher || ""}</div>
+
+          <div class="action-btns">
+            <button class="edit-btn"
+              onclick="editTeacher('${doc.id}','${t.name}','${t.subject}','${t.classSection}','${t.isClassTeacher}')">
+              Edit
+            </button>
+
+            <button class="delete-btn"
+              onclick="deleteTeacher('${doc.id}')">
+              Delete
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    document.getElementById("tableBody").innerHTML = html;
+  });
+}
+
+/* ---------------- EDIT ---------------- */
+function editTeacher(id, name, subject, classSection, ct) {
+
+  document.getElementById("name").value = name;
+  document.getElementById("subject").value = subject;
+  document.getElementById("classSection").value = classSection;
+  document.getElementById("classTeacher").value = ct;
+
+  editId = id;
+}
+
+/* ---------------- DELETE ---------------- */
+function deleteTeacher(id) {
+  if (confirm("Delete this teacher?")) {
+    db.collection("teachers").doc(id).delete();
+  }
+}
+
+/* ---------------- CLEAR FORM ---------------- */
+function clearForm() {
+  document.getElementById("name").value = "";
+  document.getElementById("subject").value = "";
+  document.getElementById("classSection").value = "";
+  document.getElementById("classTeacher").value = "";
+}
+
+/* ---------------- PAGE SWITCH ---------------- */
+function showAdd() {
+  document.getElementById("addPage").style.display = "block";
+  document.getElementById("detailsPage").style.display = "none";
+}
+
+function showDetails() {
+  document.getElementById("addPage").style.display = "none";
+  document.getElementById("detailsPage").style.display = "block";
+
+  // ensure data loaded
+  if (allTeachers.length === 0) {
+    loadTeachers();
+  }
+}
+
+/* ---------------- SEARCH ---------------- */
+function searchTeacher() {
+
+  const input = document.getElementById("teacherSearch").value.toLowerCase();
+  const box = document.getElementById("suggestions");
+
+  if (!input) {
+    box.innerHTML = "";
+    return;
+  }
+
+  let html = "";
+
+  allTeachers.forEach(t => {
+
+    if (t.name && t.name.toLowerCase().includes(input)) {
+      html += `
+        <div class="suggestion-item"
+          onclick="selectTeacher('${t.id}', '${t.name}')">
+          ${t.name}
+        </div>
+      `;
+    }
+  });
+
+  box.innerHTML = html;
+}
+
+
+function selectInvTeacher(name) {
+  document.getElementById("invTeacherSearch").value = name;
+  document.getElementById("invTeacher").value = name;
+  document.getElementById("invSuggestions").innerHTML = "";
+}
+/* ---------------- SELECT TEACHER ---------------- */
+function selectTeacher(id, name) {
+  document.getElementById("teacherSearch").value = name;
+  document.getElementById("suggestions").innerHTML = "";
+
+  const matches = allTeachers.filter(t => t.name === name);
+
+  if (matches.length === 0) {
+    document.getElementById("teacherDetails").innerHTML = "No data found";
+    return;
+  }
+
+  let html = `
+    <div class="detail-box">
+
+      <div class="teacher-header">
+        <div>Name</div>
+        <div>Class & Section</div>
+        <div>Subject</div>
+        <div>Class Teacher</div>
+      </div>
+  `;
+
+  matches.forEach(t => {
+    html += `
+      <div class="teacher-row">
+        <div>${t.name}</div>
+        <div>${t.classSection}</div>
+        <div>${t.subject}</div>
+        <div>${t.isClassTeacher}</div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  document.getElementById("teacherDetails").innerHTML = html;
+}
+
+
+/*showInvigilation*/
+function showInvigilation() {
+  document.getElementById("addPage").style.display = "none";
+  document.getElementById("detailsPage").style.display = "none";
+  document.getElementById("invigilationPage").style.display = "block";
+
+  document.getElementById("invList").innerHTML = "";
+
+  clearInvigilationForm(); // ✅ ADD THIS
+}
+
+function searchInvTeacher() {
+
+  const input = document.getElementById("invTeacherSearch").value.toLowerCase();
+  const box = document.getElementById("invSuggestions");
+
+  if (!input) {
+    box.innerHTML = "";
+    return;
+  }
+
+  let html = "";
+
+  allTeachers.forEach(t => {
+    if (t.name && t.name.toLowerCase().includes(input)) {
+      html += `
+        <div class="suggestion-item"
+          onclick="selectInvTeacher('${t.name}')">
+          ${t.name}
+        </div>
+      `;
+    }
+  });
+
+  box.innerHTML = html;
+}
+/*Create Invigilation*/
+function createInvigilation() {
+
+  const teacher = document.getElementById("invTeacher").value.trim();
+  const exam = document.getElementById("examName").value.trim();
+  const confirm = document.getElementById("confirmAssign").checked;
+
+  if (!teacher || !exam) {
+    alert("Select Teacher and Exam");
+    return;
+  }
+
+  if (!confirm) {
+    alert("Please confirm assignment");
+    return;
+  }
+
+  const docId = teacher + "_" + exam;
+  const ref = db.collection("invigilation").doc(docId);
+
+  const date = document.getElementById("invDate").value;
+  const classSection = document.getElementById("invClass").value;
+
+  ref.get().then(doc => {
+
+    if (doc.exists) {
+
+      const data = doc.data();
+
+      const allotted = data.allotted || 0;
+      const updatedAssigned = (data.assigned || 0) + 1;
+      const remaining = allotted - updatedAssigned;
+
+      if (updatedAssigned > allotted) {
+        alert("No remaining duties for this teacher!");
+        return;
+      }
+
+      // ✅ ONLY ONE UPDATE
+      ref.update({
+        assigned: updatedAssigned,
+        remaining: remaining
+      }).then(() => {
+
+        // ✅ SAVE EACH DUTY ONCE
+        const teacherObj = allTeachers.find(t => t.name === teacher);
+
+        db.collection("invigilation_duties").add({
+          teacher,
+          teacherId: teacherObj ? teacherObj.id : "", // ✅ ADD THIS
+          exam,
+          date,
+          classSection,
+          timestamp: new Date()
+        });
+
+        alert("1 Duty Assigned Successfully");
+        loadInvigilationList();
+        clearInvigilationForm();
+      });
+
+    } else {
+
+      const allotted = parseInt(document.getElementById("invAllotted").value) || 0;
+
+      const data = {
+        teacher,
+        exam,
+        allotted,
+        assigned: 1,
+        remaining: allotted - 1
+      };
+
+      // ✅ FIRST TIME SET
+      ref.set(data).then(() => {
+
+        // ✅ SAVE FIRST DUTY
+        db.collection("invigilation_duties").add({
+          teacher,
+          exam,
+          date,
+          classSection,
+          timestamp: new Date()
+        });
+
+        alert("First Duty Assigned Successfully");
+        loadInvigilationList();
+        clearInvigilationForm();
+      });
+    }
+  });
+}
+function calculateRemaining() {
+
+  const allotted = parseInt(document.getElementById("invAllotted").value) || 0;
+  const assigned = parseInt(document.getElementById("invAssigned").value) || 0;
+
+  if (assigned > allotted) {
+    alert("Assigned cannot be greater than Allotted!");
+    document.getElementById("invAssigned").value = "";
+    document.getElementById("invRemaining").value = "";
+    return;
+  }
+
+  document.getElementById("invRemaining").value = allotted - assigned;
+}
+
+
+function selectInvTeacher(name) {
+  document.getElementById("invTeacherSearch").value = name;
+  document.getElementById("invTeacher").value = name;
+  document.getElementById("invSuggestions").innerHTML = "";
+}
+
+let allInvigilation = [];
+
+function loadInvigilationList() {
+
+  db.collection("invigilation").onSnapshot(snapshot => {
+
+    allInvigilation = [];
+    let html = "";
+
+    if (snapshot.empty) {
+      document.getElementById("invList").innerHTML =
+        "<p style='color:gray'>No invigilation records found</p>";
+      return;
+    }
+
+    // ✅ HEADER
+    html += `
+      <div class="teacher-header">
+        <div>Teacher</div>
+        <div>Exam</div>
+        <div>Allotted</div>
+        <div>Assigned</div>
+        <div>Remaining</div>
+        <div>Date</div>
+        <div>Class</div>
+      </div>
+    `;
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+
+      allInvigilation.push({ id: doc.id, ...d });
+
+      // ✅ ROW
+      html += `
+        <div class="teacher-row">
+          <div><b>${d.teacher || ""}</b></div>
+          <div>${d.exam || ""}</div>
+          <div>${d.allotted || 0}</div>
+          <div>${d.assigned || 0}</div>
+          <div>${d.remaining || 0}</div>
+          <div>${d.date || ""}</div>
+          <div>${d.classSection || ""}</div>
+        </div>
+      `;
+    });
+
+    document.getElementById("invList").innerHTML = html;
+  });
+}
+
+
+
+function filterInvList() {
+
+  const input = document.getElementById("invSearchList").value.toLowerCase();
+
+  // ❌ if empty → show nothing
+  if (!input) {
+    document.getElementById("invList").innerHTML = "";
+    return;
+  }
+
+  db.collection("invigilation").get().then(snapshot => {
+
+    let html = "";
+    let found = false;
+
+    html += `
+      <div class="teacher-header">
+        <div>Teacher</div>
+        <div>Exam</div>
+        <div>Allotted</div>
+        <div>Assigned</div>
+        <div>Remaining</div>
+        <div>Date</div>
+        <div>Class</div>
+      </div>
+    `;
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+
+      if (d.teacher && d.teacher.toLowerCase().includes(input)) {
+
+        found = true;
+
+        html += `
+          <div class="teacher-row">
+            <div><b>${d.teacher || ""}</b></div>
+            <div>${d.exam || ""}</div>
+            <div>${d.allotted || 0}</div>
+            <div>${d.assigned || 0}</div>
+            <div>${d.remaining || 0}</div>
+            <div>${d.date || ""}</div>
+            <div>${d.classSection || ""}</div>
+          </div>
+        `;
+      }
+    });
+
+    if (!found) {
+      document.getElementById("invList").innerHTML =
+        "<p style='color:gray'>No matching records found</p>";
+    } else {
+      document.getElementById("invList").innerHTML = html;
+    }
+
+  });
+}
+
+function clearInvigilationForm() {
+
+  document.getElementById("invTeacherSearch").value = "";
+  document.getElementById("invTeacher").value = "";
+  document.getElementById("examName").value = "";
+
+  document.getElementById("invAllotted").value = "";
+  document.getElementById("invAssigned").value = "1"; // keep default
+  document.getElementById("invRemaining").value = "";
+
+  document.getElementById("invDate").value = "";
+  document.getElementById("invClass").value = "";
+  document.getElementById("confirmAssign").checked = false;
+
+  // ✅ CLEAR CHECKBOXES (IMPORTANT)
+  const exams = document.getElementsByName("examOption");
+  exams.forEach(cb => cb.checked = false);
+
+  // clear suggestions
+  document.getElementById("invSuggestions").innerHTML = "";
+}
+
+
+function loadTeacherExamData() {
+
+  const teacher = document.getElementById("invTeacher").value.trim();
+  const exam = document.getElementById("examName").value.trim();
+
+  if (!teacher || !exam) return;
+
+  const docId = teacher + "_" + exam;
+
+  db.collection("invigilation").doc(docId).get().then(doc => {
+
+    if (doc.exists) {
+
+      const d = doc.data();
+
+      document.getElementById("invAllotted").value = d.allotted || 0;
+      document.getElementById("invAssigned").value = d.assigned || 0;
+      document.getElementById("invRemaining").value = d.remaining || 0;
+
+    } else {
+
+      // NEW ENTRY → reset values
+      document.getElementById("invAllotted").value = "";
+      document.getElementById("invAssigned").value = "";
+      document.getElementById("invRemaining").value = "";
+    }
+  });
+}
+function selectInvTeacher(name) {
+  document.getElementById("invTeacherSearch").value = name;
+  document.getElementById("invTeacher").value = name;
+  document.getElementById("invSuggestions").innerHTML = "";
+
+  loadTeacherExamData(); // ✅ ADD THIS
+}
+document.getElementById("examName").addEventListener("input", function () {
+  loadTeacherExamData();
+});
+
+function selectExam(selected) {
+
+  // allow only ONE checkbox at a time
+  const all = document.getElementsByName("examOption");
+
+  all.forEach(cb => {
+    if (cb !== selected) cb.checked = false;
+  });
+
+  // set uniform exam name
+  if (selected.checked) {
+    document.getElementById("examName").value = selected.value;
+  } else {
+    document.getElementById("examName").value = "";
+  }
+
+  // load existing data if any
+  loadTeacherExamData();
+}
+
+function showDutyPage() {
+  document.getElementById("addPage").style.display = "none";
+  document.getElementById("detailsPage").style.display = "none";
+  document.getElementById("invigilationPage").style.display = "none";
+  document.getElementById("dutyPage").style.display = "block";
+
+  // clear everything
+  document.getElementById("dutyList").innerHTML = "";
+  document.getElementById("dutySearch").value = "";
+  document.getElementById("dutySuggestions").innerHTML = "";
+
+  // ❌ removed searchDuty()
+}
+
+function searchDuty() {
+
+  const input = document.getElementById("dutySearch").value.toLowerCase();
+
+  db.collection("invigilation_duties")
+    .orderBy("timestamp", "desc")
+    .get()
+    .then(snapshot => {
+
+      let grouped = {};
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+
+        // ✅ show all if input empty OR match search
+        if (input && d.teacher && d.teacher.toLowerCase().includes(input)){
+
+          if (!grouped[d.teacher]) {
+            grouped[d.teacher] = [];
+          }
+
+          grouped[d.teacher].push(d);
+        }
+      });
+
+      let html = "";
+
+      if (Object.keys(grouped).length === 0) {
+        document.getElementById("dutyList").innerHTML =
+          "<p style='color:gray'>No records found</p>";
+        return;
+      }
+
+      for (let teacher in grouped) {
+
+        html += `
+          <div class="detail-box">
+            <h4>${teacher}</h4>
+
+            <div class="teacher-header">
+              <div>Exam</div>
+              <div>Date</div>
+              <div>Class</div>
+            </div>
+        `;
+
+        grouped[teacher].forEach(d => {
+          html += `
+            <div class="teacher-row">
+              <div>${d.exam || ""}</div>
+              <div>${d.date || ""}</div>
+              <div>${d.classSection || ""}</div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      }
+
+      document.getElementById("dutyList").innerHTML = html;
+    });
+}
+function showPrintPage() {
+  document.getElementById("addPage").style.display = "none";
+  document.getElementById("detailsPage").style.display = "none";
+  document.getElementById("invigilationPage").style.display = "none";
+  document.getElementById("dutyPage").style.display = "none";
+  document.getElementById("printPage").style.display = "block";
+
+  document.getElementById("printResult").innerHTML = "";
+}
+
+function loadDayInvigilation() {
+
+  const date = document.getElementById("printDate").value;
+
+  if (!date) return;
+
+  db.collection("invigilation_duties")
+    .where("date", "==", date)
+    .get()
+    .then(snapshot => {
+
+      if (snapshot.empty) {
+        document.getElementById("printResult").innerHTML =
+          "<p style='color:gray'>No duties for this date</p>";
+        return;
+      }
+
+      // group by exam
+      let grouped = {};
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+
+        if (!grouped[d.exam]) {
+          grouped[d.exam] = [];
+        }
+
+        grouped[d.exam].push(d);
+      });
+
+      let html = `
+        <h2 style="text-align:center; margin-bottom:5px;">
+          Invigilation Duty List
+        </h2>
+        <p style="text-align:center; margin-top:0;">
+          Date: ${date}
+        </p>
+      `;
+
+      // LOOP EACH EXAM ONCE
+      for (let exam in grouped) {
+
+        html += `
+          <h3 style="margin-top:20px; border-bottom:1px solid #000;">
+            ${exam}
+          </h3>
+
+          <div style="
+            display:grid;
+            grid-template-columns: 2fr 2fr 2fr;
+            font-weight:bold;
+            border-bottom:2px solid #000;
+            padding:5px 0;
+          ">
+            <div>Teacher Name</div>
+            <div>Class & Section</div>
+            <div>Signature</div>
+          </div>
+        `;
+
+        grouped[exam].forEach(d => {
+
+          html += `
+            <div style="
+              display:grid;
+              grid-template-columns: 2fr 2fr 2fr;
+              padding:6px 0;
+              border-bottom:1px dotted #ccc;
+            ">
+              <div>${d.teacher}</div>
+              <div>${d.classSection}</div>
+              <div></div>
+            </div>
+          `;
+        });
+      }
+
+      document.getElementById("printResult").innerHTML = html;
+    });
+}
+
+function printPage() {
+
+  const content = document.getElementById("printResult").innerHTML;
+
+  const w = window.open("");
+
+  w.document.write(`
+    <html>
+    <head>
+      <title>Invigilation Print</title>
+
+      <style>
+        body {
+          font-family: Arial;
+          padding: 20px;
+        }
+
+        h2, h3 {
+          text-align: center;
+        }
+
+        .line {
+          border-bottom: 1px solid #000;
+        }
+
+        .row {
+          display: grid;
+          grid-template-columns: 2fr 2fr 2fr;
+          padding: 5px 0;
+        }
+
+        .header {
+          font-weight: bold;
+          border-bottom: 2px solid #000;
+        }
+      </style>
+
+    </head>
+    <body>
+      ${content}
+    </body>
+    </html>
+  `);
+
+  w.document.close();
+  w.print();
+}
+
+function searchDutyTeacher() {
+
+  const input = document.getElementById("dutySearch").value.toLowerCase();
+  const box = document.getElementById("dutySuggestions");
+
+  if (!input) {
+    box.innerHTML = "";
+    document.getElementById("dutyList").innerHTML = ""; // clear list
+    return;
+  }
+
+  let html = "";
+
+  allTeachers.forEach(t => {
+    if (t.name && t.name.toLowerCase().includes(input)) {
+      html += `
+      <div class="suggestion-item"
+        onclick="selectDutyTeacher('${t.id}', '${t.name}')">
+        ${t.name}
+      </div>
+    `;
+    }
+  });
+
+  box.innerHTML = html;
+
+  // ✅ ADD THIS LINE (IMPORTANT)
+  searchDuty();
+}
+
+function selectDutyTeacher(id, name) {
+
+  document.getElementById("dutySearch").value = name;
+  document.getElementById("dutySuggestions").innerHTML = "";
+
+  db.collection("invigilation_duties")
+    .where("teacherId", "==", id)   // ✅ FIXED (use ID)
+    .orderBy("timestamp", "desc")
+    .get()
+    .then(snapshot => {
+
+      if (snapshot.empty) {
+        document.getElementById("dutyList").innerHTML =
+          "<p style='color:gray'>No records found</p>";
+        return;
+      }
+
+      let html = `
+        <div class="detail-box">
+          <h4>${name}</h4>
+
+          <div class="teacher-header">
+            <div>Exam</div>
+            <div>Date</div>
+            <div>Class</div>
+          </div>
+      `;
+
+      snapshot.forEach(doc => {
+        const d = doc.data();
+
+        html += `
+          <div class="teacher-row">
+            <div>${d.exam || ""}</div>
+            <div>${d.date || ""}</div>
+            <div>${d.classSection || ""}</div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+
+      document.getElementById("dutyList").innerHTML = html;
+    });
+}
+
+function showInvCreatedPage() {
+  hideAllPages();
+  document.getElementById("invCreatedPage").style.display = "block";
+
+  document.getElementById("invCreatedSearch").value = "";
+  loadInvCreatedList(); // show all initially
+}
+
+function loadInvCreatedList() {
+
+  let html = "";
+
+  if (allInvigilation.length === 0) {
+    document.getElementById("invCreatedList").innerHTML =
+      "<p style='color:gray'>No records found</p>";
+    return;
+  }
+
+  html += `
+    <div class="teacher-header">
+      <div>Teacher</div>
+      <div>Exam</div>
+      <div>Allotted</div>
+      <div>Assigned</div>
+      <div>Remaining</div>
+    </div>
+  `;
+
+  allInvigilation.forEach(d => {
+    html += `
+      <div class="teacher-row">
+        <div><b>${d.teacher}</b></div>
+        <div>${d.exam}</div>
+        <div>${d.allotted}</div>
+        <div>${d.assigned}</div>
+        <div>${d.remaining}</div>
+      </div>
+    `;
+  });
+
+  document.getElementById("invCreatedList").innerHTML = html;
+}
+
+function searchInvCreated() {
+
+  const input = document.getElementById("invCreatedSearch").value.toLowerCase();
+
+  if (!input) {
+    loadInvCreatedList();
+    return;
+  }
+
+  const filtered = allInvigilation.filter(d =>
+    d.teacher && d.teacher.toLowerCase().includes(input)
+  );
+
+  let html = "";
+
+  if (filtered.length === 0) {
+    document.getElementById("invCreatedList").innerHTML =
+      "<p style='color:gray'>No matching records</p>";
+    return;
+  }
+
+  html += `
+    <div class="teacher-header">
+      <div>Teacher</div>
+      <div>Exam</div>
+      <div>Allotted</div>
+      <div>Assigned</div>
+      <div>Remaining</div>
+    </div>
+  `;
+
+  filtered.forEach(d => {
+    html += `
+      <div class="teacher-row">
+        <div><b>${d.teacher}</b></div>
+        <div>${d.exam}</div>
+        <div>${d.allotted}</div>
+        <div>${d.assigned}</div>
+        <div>${d.remaining}</div>
+      </div>
+    `;
+  });
+
+  document.getElementById("invCreatedList").innerHTML = html;
+}
+
+function hideAllPages() {
+  document.getElementById("addPage").style.display = "none";
+  document.getElementById("detailsPage").style.display = "none";
+  document.getElementById("invigilationPage").style.display = "none";
+  document.getElementById("dutyPage").style.display = "none";
+  document.getElementById("printPage").style.display = "none";
+  document.getElementById("invCreatedPage").style.display = "none";
+}
+
+
+// SHOW PAGE
+function showInvReportPage() {
+  hideAllPages();
+  document.getElementById("invReportPage").style.display = "block";
+
+  document.getElementById("reportSearch").value = "";
+  document.getElementById("reportList").innerHTML = "";
+
+  loadInvReportData();
+}
+
+/* SEARCH + SHOW REPORT */
+function filterInvReport() {
+
+  const input = document.getElementById("reportSearch").value.toLowerCase();
+  const box = document.getElementById("reportList");
+
+  if (!input) {
+    box.innerHTML = "";
+    return;
+  }
+
+  let filtered = allInvigilation.filter(d =>
+    d.teacher && d.teacher.toLowerCase().includes(input)
+  );
+
+  if (filtered.length === 0) {
+    box.innerHTML = "<p style='color:gray'>No records found</p>";
+    return;
+  }
+
+  let html = "";
+
+  // group by teacher
+  let grouped = {};
+
+  filtered.forEach(d => {
+    if (!grouped[d.teacher]) grouped[d.teacher] = [];
+    grouped[d.teacher].push(d);
+  });
+
+  for (let teacher in grouped) {
+
+    html += `
+      <div class="detail-box">
+        <h4>${teacher}</h4>
+
+        <div class="teacher-header">
+          <div>Exam</div>
+          <div>Date</div>
+          <div>Class</div>
+        </div>
+    `;
+
+    grouped[teacher].forEach(d => {
+      html += `
+        <div class="teacher-row">
+          <div>${d.exam || ""}</div>
+          <div>${d.date || ""}</div>
+          <div>${d.classSection || ""}</div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  box.innerHTML = html;
+}
+
+
+function loadInvReportData() {
+
+  const box = document.getElementById("reportList");
+
+  if (!allInvigilation || allInvigilation.length === 0) {
+    box.innerHTML = "<p style='color:gray'>No records found</p>";
+    return;
+  }
+
+  let html = "";
+
+  let grouped = {};
+
+  allInvigilation.forEach(d => {
+    if (!grouped[d.teacher]) grouped[d.teacher] = [];
+    grouped[d.teacher].push(d);
+  });
+
+  for (let teacher in grouped) {
+
+    html += `
+      <div class="detail-box">
+        <h4>${teacher}</h4>
+
+        <div class="teacher-header">
+          <div>Exam</div>
+          <div>Date</div>
+          <div>Class</div>
+        </div>
+    `;
+
+    grouped[teacher].forEach(d => {
+      html += `
+        <div class="teacher-row">
+          <div>${d.exam || ""}</div>
+          <div>${d.date || ""}</div>
+          <div>${d.classSection || ""}</div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  box.innerHTML = html;
+}
+
+function openInvReportPageClean() {
+
+  hideAllPages();
+
+  document.getElementById("invReportPage").style.display = "block";
+
+  document.getElementById("reportSearch").value = "";
+
+  document.getElementById("reportList").innerHTML = "";
+
+  loadAllInvReportDataClean(); // load everything initially
+}
+
+function loadAllInvReportDataClean() {
+
+  const box = document.getElementById("reportList");
+
+  db.collection("invigilation").get().then(snapshot => {
+
+    if (snapshot.empty) {
+      box.innerHTML = "<p style='color:gray'>No records found</p>";
+      return;
+    }
+
+    let grouped = {};
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+
+      if (!grouped[d.teacher]) {
+        grouped[d.teacher] = [];
+      }
+
+      grouped[d.teacher].push(d);
+    });
+
+    renderInvReportClean(grouped, box);
+  });
+}
+
+function searchInvReportClean() {
+
+  const input = document.getElementById("reportSearch").value.toLowerCase();
+  const box = document.getElementById("reportList");
+
+  if (!input) {
+    loadAllInvReportDataClean();
+    return;
+  }
+
+  db.collection("invigilation").get().then(snapshot => {
+
+    let grouped = {};
+
+    snapshot.forEach(doc => {
+      const d = doc.data();
+
+      if (d.teacher && d.teacher.toLowerCase().includes(input)) {
+
+        if (!grouped[d.teacher]) {
+          grouped[d.teacher] = [];
+        }
+
+        grouped[d.teacher].push(d);
+      }
+    });
+
+    if (Object.keys(grouped).length === 0) {
+      box.innerHTML = "<p style='color:gray'>No matching records</p>";
+      return;
+    }
+
+    renderInvReportClean(grouped, box);
+  });
+}
+function renderInvReportClean(grouped, box) {
+
+  let html = "";
+
+  for (let teacher in grouped) {
+
+    html += `
+      <div class="detail-box">
+        <h4>${teacher}</h4>
+
+        <div class="teacher-header">
+          <div>Exam</div>
+          <div>Date</div>
+          <div>Class</div>
+        </div>
+    `;
+
+    grouped[teacher].forEach(d => {
+      html += `
+        <div class="teacher-row">
+          <div>${d.exam || ""}</div>
+          <div>${d.date || ""}</div>
+          <div>${d.classSection || ""}</div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  }
+
+  box.innerHTML = html;
+}
+
+
+window.onload = function () {
+  loadTeachers();
+  loadInvigilationList(); // ✅ ADD THIS
+};
+
+</script>
+
+</body>
+</html>
